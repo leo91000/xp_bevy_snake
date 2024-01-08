@@ -1,14 +1,8 @@
-use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
-
-// x coordinates
-const LEFT_WALL: f32 = -450.;
-const RIGHT_WALL: f32 = 450.;
-// y coordinates
-const BOTTOM_WALL: f32 = -300.;
-const TOP_WALL: f32 = 300.;
-
-const SNAKE_HEAD_SIZE: Vec3 = Vec3::new(20., 20., 0.);
-const SNAKE_STARTING_POSITION: Vec3 = Vec3::new(0., -50., 1.);
+use bevy::{
+    prelude::*,
+    render::mesh::{Indices, PrimitiveTopology},
+    sprite::MaterialMesh2dBundle,
+};
 
 fn main() {
     App::new()
@@ -18,39 +12,41 @@ fn main() {
 }
 
 #[derive(Component)]
-struct SnakeHead;
+struct Snake;
 
 #[derive(Component)]
-struct SnakeBody(Vec3);
+struct PointList(Vec<Vec2>);
 
-#[derive(Bundle)]
-struct SnakeBundle {
-    head: SnakePart,
-}
+#[derive(Component)]
+struct Direction(Vec2);
 
 fn setup(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    // asset_server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
+    let snake_point_list = [Vec2::new(0., 0.), Vec2::new(0., 1.), Vec2::new(0., 2.)];
+    let _snake_direction = Vec2::new(0., 1.);
+
+    let snake_vertices = snake_point_list
+        .iter()
+        .map(|point| Vec3::new(point.x, point.y, 0.))
+        .collect::<Vec<_>>();
+
+    let snake_indices: Vec<u32> = (0..snake_point_list.len() as u32).collect();
+
+    let mut mesh = Mesh::new(PrimitiveTopology::LineStrip);
+    mesh.set_indices(Some(Indices::U32(snake_indices)));
+    mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, snake_vertices);
+    let mesh = meshes.add(mesh);
+
+    commands.spawn(MaterialMesh2dBundle {
+        mesh: mesh.into(),
+        material: materials.add(ColorMaterial::from(Color::PURPLE)),
+        transform: Transform::from_translation(Vec3::new(0., 0., 0.)),
+        ..Default::default()
+    });
+
     commands.spawn(Camera2dBundle::default());
-
-    // Snake
-    let default_snake_size = 20;
-
-    // Center of the screen
-    let head_x = (TOP_WALL - BOTTOM_WALL) / 2.;
-    let head_y = (RIGHT_WALL - LEFT_WALL) / 2.;
-
-    commands.spawn((
-        MaterialMesh2dBundle {
-            mesh: meshes.add(shape::Circle::default().into()).into(),
-            material: materials.add(Color::rgb(0.7, 0.7, 0.7).into()),
-            transform: Transform::from_translation(SNAKE_STARTING_POSITION)
-                .with_scale(SNAKE_HEAD_SIZE),
-            ..Default::default()
-        },
-        SnakeHead,
-    ));
 }
