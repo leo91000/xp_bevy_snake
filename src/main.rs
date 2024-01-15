@@ -1,8 +1,9 @@
-use bevy::{
-    prelude::*,
-    render::mesh::{Indices, PrimitiveTopology},
-    sprite::{MaterialMesh2dBundle, Mesh2dHandle},
-};
+use bevy::{prelude::*, render::mesh::Indices, sprite::Mesh2dHandle};
+use components::{direction::Direction, point_list::PointList, snake::Snake};
+use consts::{DISTANCE_BETWEEN_POINTS, MOVEMENT_SPEED, TURN_SPEED};
+
+mod components;
+mod consts;
 
 fn main() {
     App::new()
@@ -12,93 +13,13 @@ fn main() {
         .run();
 }
 
-#[derive(Component)]
-struct Snake;
-
-#[derive(Component)]
-struct PointList(Vec<Vec2>);
-
-const DISTANCE_BETWEEN_POINTS: f32 = 3.0;
-const INITIAL_LENGTH: f32 = 20.0;
-const SNAKE_THICKNESS: f32 = 3.0;
-
-impl PointList {
-    fn get_indices_and_vertices(&self) -> (Vec<u32>, Vec<[f32; 3]>) {
-        let mut vertices = Vec::new();
-        let mut indices = Vec::new();
-
-        for i in 0..self.0.len() {
-            let point = self.0[i];
-            let normal = if i < self.0.len() - 1 {
-                // Calculate normal for the current segment
-                (self.0[i + 1] - point).perp().normalize() * SNAKE_THICKNESS / 2.0
-            } else {
-                // Use the normal from the previous segment for the last point
-                (point - self.0[i - 1]).perp().normalize() * SNAKE_THICKNESS / 2.0
-            };
-
-            // Add two vertices for the edges of the snake
-            vertices.push([point.x - normal.x, point.y - normal.y, 0.0]);
-            vertices.push([point.x + normal.x, point.y + normal.y, 0.0]);
-        }
-
-        // Create indices for the triangle strip
-        for i in 0..(vertices.len() as u32 / 2 - 1) {
-            let base = i * 2;
-            indices.extend_from_slice(&[base, base + 1, base + 2, base + 2, base + 1, base + 3]);
-        }
-
-        (indices, vertices)
-    }
-
-    fn mesh(&self) -> Mesh {
-        let mut mesh = Mesh::new(PrimitiveTopology::TriangleStrip);
-        let (indices, vertices) = self.get_indices_and_vertices();
-
-        mesh.set_indices(Some(Indices::U32(indices)));
-        mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, vertices);
-
-        mesh
-    }
-
-    /// Creates a default point list (a line on the x axis)
-    fn create_default() -> Self {
-        let mut points = Vec::new();
-
-        for i in 0..(INITIAL_LENGTH as u32) {
-            points.push(Vec2::new(i as f32 * DISTANCE_BETWEEN_POINTS, 0.0));
-        }
-
-        Self(points)
-    }
-}
-
-/// Represents the angle of the snake in radians
-#[derive(Component)]
-struct Direction(f32);
-
 fn setup(
     mut commands: Commands,
     // asset_server: Res<AssetServer>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    meshes: ResMut<Assets<Mesh>>,
+    materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    let snake = Snake;
-    let point_list = PointList::create_default();
-    let direction = Direction(std::f32::consts::PI);
-
-    let mesh = meshes.add(point_list.mesh());
-
-    commands.spawn((
-        snake,
-        point_list,
-        direction,
-        MaterialMesh2dBundle {
-            mesh: mesh.into(),
-            material: materials.add(Color::RED.into()),
-            ..Default::default()
-        },
-    ));
+    commands.spawn(Snake::get_default_entity_components(meshes, materials));
 
     commands.spawn(Camera2dBundle::default());
 }
@@ -115,13 +36,11 @@ fn update_mesh(
         return;
     };
 
-    let (indices, vertices) = point_list.get_indices_and_vertices();
+    let (indices, vertices) = Snake::get_indices_and_vertices(point_list);
 
     mesh.set_indices(Some(Indices::U32(indices)));
     mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, vertices);
 }
-
-const TURN_SPEED: f32 = 3.0;
 
 fn update_direction(
     time: Res<Time>,
@@ -146,8 +65,6 @@ fn update_direction(
         }
     }
 }
-
-const MOVEMENT_SPEED: f32 = 20.0;
 
 /// We want to have a snake effect
 fn update_position(time: Res<Time>, mut query: Query<(&mut PointList, &Direction), With<Snake>>) {
