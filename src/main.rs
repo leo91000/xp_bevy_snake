@@ -1,6 +1,6 @@
 use bevy::{prelude::*, render::mesh::Indices, sprite::Mesh2dHandle};
-use components::{direction::Direction, point_list::PointList, snake::Snake};
-use consts::{DISTANCE_BETWEEN_POINTS, MOVEMENT_SPEED, TURN_SPEED};
+use components::{direction::Direction, obstacle::Obstacle, point_list::PointList, snake::Snake};
+use consts::{DISTANCE_BETWEEN_POINTS, MOVEMENT_SPEED, NUMBER_OF_OBSTACLES, TURN_SPEED};
 
 mod components;
 mod consts;
@@ -16,10 +16,24 @@ fn main() {
 fn setup(
     mut commands: Commands,
     // asset_server: Res<AssetServer>,
-    meshes: ResMut<Assets<Mesh>>,
-    materials: ResMut<Assets<ColorMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    commands.spawn(Snake::get_default_entity_components(meshes, materials));
+    commands.spawn(Snake::get_default_entity_components(
+        &mut meshes,
+        &mut materials,
+    ));
+
+    for _ in 0..NUMBER_OF_OBSTACLES {
+        commands.spawn(Obstacle::create_random(
+            100.0,
+            std::f32::consts::PI / 2.0,
+            3,
+            5,
+            &mut materials,
+            &mut meshes,
+        ));
+    }
 
     commands.spawn(Camera2dBundle::default());
 }

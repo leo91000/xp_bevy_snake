@@ -51,8 +51,8 @@ impl Snake {
     }
 
     pub fn get_default_entity_components(
-        mut meshes: ResMut<Assets<Mesh>>,
-        mut materials: ResMut<Assets<ColorMaterial>>,
+        meshes: &mut ResMut<Assets<Mesh>>,
+        materials: &mut ResMut<Assets<ColorMaterial>>,
     ) -> (
         Self,
         PointList,
