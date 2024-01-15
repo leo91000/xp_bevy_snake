@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct PointList(pub Vec<Vec2>);
 
 impl PointList {

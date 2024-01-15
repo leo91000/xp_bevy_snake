@@ -74,7 +74,7 @@ impl Snake {
             Direction::default(),
             MaterialMesh2dBundle {
                 mesh: meshes.add(mesh).into(),
-                material: materials.add(Color::RED.into()),
+                material: materials.add(Color::GREEN.into()),
                 ..Default::default()
             },
         )

@@ -26,10 +26,10 @@ fn setup(
 
     for _ in 0..NUMBER_OF_OBSTACLES {
         commands.spawn(Obstacle::create_random(
-            100.0,
+            30.0,
             std::f32::consts::PI / 2.0,
-            3,
-            5,
+            4,
+            10,
             &mut materials,
             &mut meshes,
         ));

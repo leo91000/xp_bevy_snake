@@ -15,25 +15,16 @@ impl Obstacle {
         let mut vertices = Vec::new();
         let mut indices = Vec::new();
 
-        for i in 0..point_list.0.len() {
-            let point = point_list.0[i];
-            let normal = if i < point_list.0.len() - 1 {
-                // Calculate normal for the current segment
-                (point_list.0[i + 1] - point).perp().normalize() * 0.5
-            } else {
-                // Use the normal from the previous segment for the last point
-                (point - point_list.0[i - 1]).perp().normalize() * 0.5
-            };
-
-            // Add two vertices for the edges of the snake
-            vertices.push([point.x - normal.x, point.y - normal.y, 0.0]);
-            vertices.push([point.x + normal.x, point.y + normal.y, 0.0]);
+        if point_list.0.len() < 3 {
+            return (indices, vertices);
         }
 
-        // Create indices for the triangle strip
-        for i in 0..(vertices.len() as u32 / 2 - 1) {
-            let base = i * 2;
-            indices.extend_from_slice(&[base, base + 1, base + 2, base + 2, base + 1, base + 3]);
+        for i in 0..point_list.0.len() {
+            vertices.push([point_list.0[i].x, point_list.0[i].y, 1.0]);
+        }
+
+        for i in 1..(point_list.0.len() - 1) {
+            indices.extend_from_slice(&[0, i as u32, (i + 1) as u32]);
         }
 
         (indices, vertices)
@@ -65,7 +56,7 @@ impl Obstacle {
         let mut last_direction = Vec2::new(0.0, 1.0);
 
         let points_count = rng.gen_range(min_points..max_points);
-        for _ in min_points..max_points - points_count {
+        for _ in 0..points_count {
             let distance = rng.gen_range(0.0..max_distance);
             let angle = rng.gen_range(-max_angle..max_angle);
 
