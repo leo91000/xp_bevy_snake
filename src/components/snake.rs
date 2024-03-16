@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy::render::mesh::Indices;
+use bevy::render::render_asset::RenderAssetUsages;
 use bevy::render::render_resource::PrimitiveTopology;
 use bevy::sprite::MaterialMesh2dBundle;
 
@@ -41,10 +42,13 @@ impl Snake {
     }
 
     pub fn create_mesh(point_list: &PointList) -> Mesh {
-        let mut mesh = Mesh::new(PrimitiveTopology::TriangleStrip);
+        let mut mesh = Mesh::new(
+            PrimitiveTopology::TriangleStrip,
+            RenderAssetUsages::default(),
+        );
         let (indices, vertices) = Self::get_indices_and_vertices(point_list);
 
-        mesh.set_indices(Some(Indices::U32(indices)));
+        mesh.insert_indices(Indices::U32(indices));
         mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, vertices);
 
         mesh
@@ -74,7 +78,7 @@ impl Snake {
             Direction::default(),
             MaterialMesh2dBundle {
                 mesh: meshes.add(mesh).into(),
-                material: materials.add(Color::GREEN.into()),
+                material: materials.add(Color::GREEN),
                 ..Default::default()
             },
         )

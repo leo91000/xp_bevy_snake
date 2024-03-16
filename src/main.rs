@@ -1,13 +1,16 @@
 use bevy::{prelude::*, render::mesh::Indices, sprite::Mesh2dHandle};
 use components::{direction::Direction, obstacle::Obstacle, point_list::PointList, snake::Snake};
 use consts::{DISTANCE_BETWEEN_POINTS, MOVEMENT_SPEED, NUMBER_OF_OBSTACLES, TURN_SPEED};
+use fps_counter::FpsCounterPlugin;
 
 mod components;
 mod consts;
+mod fps_counter;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugins(FpsCounterPlugin)
         .add_systems(Startup, setup)
         .add_systems(Update, (update_direction, update_position, update_mesh))
         .run();
@@ -52,21 +55,21 @@ fn update_mesh(
 
     let (indices, vertices) = Snake::get_indices_and_vertices(point_list);
 
-    mesh.set_indices(Some(Indices::U32(indices)));
+    mesh.insert_indices(Indices::U32(indices));
     mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, vertices);
 }
 
 fn update_direction(
     time: Res<Time>,
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
     mut query: Query<&mut Direction, With<Snake>>,
 ) {
     let mut direction = query.single_mut();
 
     let mut offset = None;
-    if keyboard_input.pressed(KeyCode::Left) {
+    if keyboard_input.pressed(KeyCode::ArrowLeft) {
         offset = Some(TURN_SPEED);
-    } else if keyboard_input.pressed(KeyCode::Right) {
+    } else if keyboard_input.pressed(KeyCode::ArrowRight) {
         offset = Some(-TURN_SPEED);
     }
 

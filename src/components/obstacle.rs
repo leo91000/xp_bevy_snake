@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy::render::mesh::Indices;
+use bevy::render::render_asset::RenderAssetUsages;
 use bevy::render::render_resource::PrimitiveTopology;
 use bevy::sprite::MaterialMesh2dBundle;
 use rand::Rng;
@@ -31,10 +32,13 @@ impl Obstacle {
     }
 
     fn create_mesh(point_list: &PointList) -> Mesh {
-        let mut mesh = Mesh::new(PrimitiveTopology::TriangleStrip);
+        let mut mesh = Mesh::new(
+            PrimitiveTopology::TriangleStrip,
+            RenderAssetUsages::default(),
+        );
         let (indices, vertices) = Self::get_indices_and_vertices(point_list);
 
-        mesh.set_indices(Some(Indices::U32(indices)));
+        mesh.insert_indices(Indices::U32(indices));
         mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, vertices);
 
         mesh
@@ -71,7 +75,7 @@ impl Obstacle {
         }
 
         let mesh = meshes.add(Self::create_mesh(&points)).into();
-        let material = materials.add(Color::RED.into());
+        let material = materials.add(Color::RED);
 
         (
             Self,
