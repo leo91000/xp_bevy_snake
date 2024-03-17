@@ -1,9 +1,11 @@
 use bevy::{prelude::*, render::mesh::Indices, sprite::Mesh2dHandle};
+use collision::CollisionPlugin;
 use components::{direction::Direction, obstacle::Obstacle, point_list::PointList, snake::Snake};
 use consts::{DISTANCE_BETWEEN_POINTS, MOVEMENT_SPEED, TURN_SPEED};
 use fps_counter::FpsCounterPlugin;
 use players_lifes::PlayersLifesPlugin;
 
+mod collision;
 mod components;
 mod consts;
 mod fps_counter;
@@ -15,6 +17,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(FpsCounterPlugin)
         .add_plugins(PlayersLifesPlugin)
+        .add_plugins(CollisionPlugin)
         .add_systems(Startup, setup)
         .add_systems(Update, (update_direction, update_position, update_mesh))
         .run();
