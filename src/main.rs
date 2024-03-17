@@ -1,16 +1,20 @@
 use bevy::{prelude::*, render::mesh::Indices, sprite::Mesh2dHandle};
 use components::{direction::Direction, obstacle::Obstacle, point_list::PointList, snake::Snake};
-use consts::{DISTANCE_BETWEEN_POINTS, MOVEMENT_SPEED, NUMBER_OF_OBSTACLES, TURN_SPEED};
+use consts::{DISTANCE_BETWEEN_POINTS, MOVEMENT_SPEED, TURN_SPEED};
 use fps_counter::FpsCounterPlugin;
+use players_lifes::PlayersLifesPlugin;
 
 mod components;
 mod consts;
 mod fps_counter;
+mod levels;
+mod players_lifes;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(FpsCounterPlugin)
+        .add_plugins(PlayersLifesPlugin)
         .add_systems(Startup, setup)
         .add_systems(Update, (update_direction, update_position, update_mesh))
         .run();
@@ -27,12 +31,11 @@ fn setup(
         &mut materials,
     ));
 
-    for _ in 0..NUMBER_OF_OBSTACLES {
-        commands.spawn(Obstacle::create_random(
-            30.0,
-            std::f32::consts::PI / 2.0,
-            4,
-            10,
+    let simple_level: crate::levels::Level = load_level!("simple");
+
+    for obstacle in simple_level.obstacles {
+        commands.spawn(Obstacle::create_from_point_list(
+            obstacle,
             &mut materials,
             &mut meshes,
         ));

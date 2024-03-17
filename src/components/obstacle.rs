@@ -3,7 +3,6 @@ use bevy::render::mesh::Indices;
 use bevy::render::render_asset::RenderAssetUsages;
 use bevy::render::render_resource::PrimitiveTopology;
 use bevy::sprite::MaterialMesh2dBundle;
-use rand::Rng;
 
 use super::point_list::PointList;
 
@@ -44,36 +43,11 @@ impl Obstacle {
         mesh
     }
 
-    pub fn create_random(
-        max_distance: f32,
-        max_angle: f32,
-        min_points: u32,
-        max_points: u32,
+    pub fn create_from_point_list(
+        points: PointList,
         materials: &mut ResMut<Assets<ColorMaterial>>,
         meshes: &mut ResMut<Assets<Mesh>>,
     ) -> (Self, PointList, MaterialMesh2dBundle<ColorMaterial>) {
-        let mut rng = rand::thread_rng();
-        let mut points = PointList::new();
-        let mut vertices = Vec::new();
-
-        let mut last_point = Vec2::new(0.0, 0.0);
-        let mut last_direction = Vec2::new(0.0, 1.0);
-
-        let points_count = rng.gen_range(min_points..max_points);
-        for _ in 0..points_count {
-            let distance = rng.gen_range(0.0..max_distance);
-            let angle = rng.gen_range(-max_angle..max_angle);
-
-            let angle_vec = Vec2::new(angle.cos(), angle.sin());
-            let direction = last_direction.rotate(angle_vec);
-            let point = last_point + direction * distance;
-
-            points.push(point);
-            vertices.push(point);
-            last_point = point;
-            last_direction = direction;
-        }
-
         let mesh = meshes.add(Self::create_mesh(&points)).into();
         let material = materials.add(Color::RED);
 
