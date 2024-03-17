@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::app_state::AppState;
+
 #[derive(Component)]
 pub struct PlayerLifeUiRoot;
 
@@ -11,7 +13,7 @@ pub struct PlayersLifes(pub u32);
 
 impl PlayersLifes {
     pub fn new() -> Self {
-        Self(3)
+        Self(1)
     }
 }
 
@@ -19,8 +21,12 @@ pub struct PlayersLifesPlugin;
 
 impl Plugin for PlayersLifesPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup_players_lifes)
-            .add_systems(Update, update_players_lifes_ui);
+        app.add_systems(OnEnter(AppState::InGame), setup_players_lifes)
+            .add_systems(OnExit(AppState::InGame), cleanup_players_lifes_ui)
+            .add_systems(
+                Update,
+                (update_players_lifes_ui, game_over).run_if(in_state(AppState::InGame)),
+            );
     }
 }
 
@@ -79,5 +85,20 @@ pub fn update_players_lifes_ui(
 ) {
     for mut text in &mut query {
         text.sections[1].value = format!(" {:>2.0}", players_lifes.0);
+    }
+}
+
+pub fn game_over(mut next_state: ResMut<NextState<AppState>>, players_lifes: Res<PlayersLifes>) {
+    if players_lifes.0 == 0 {
+        next_state.set(AppState::GameOver);
+    }
+}
+
+pub fn cleanup_players_lifes_ui(
+    mut commands: Commands,
+    query: Query<Entity, With<PlayerLifeUiRoot>>,
+) {
+    for entity in query.iter() {
+        commands.entity(entity).despawn_recursive();
     }
 }
