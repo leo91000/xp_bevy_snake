@@ -6,6 +6,7 @@ use serde_json::from_str;
 
 #[derive(Deserialize)]
 pub struct Level {
+    #[allow(dead_code)]
     pub name: String,
     pub obstacles: Vec<PointList>,
 }

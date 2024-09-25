@@ -35,7 +35,7 @@ pub fn setup_players_lifes(mut commands: Commands) {
         .spawn((
             PlayerLifeUiRoot,
             NodeBundle {
-                background_color: BackgroundColor(Color::BLACK.with_a(0.5)),
+                background_color: BackgroundColor(Color::BLACK.with_alpha(0.5)),
                 style: Style {
                     position_type: PositionType::Absolute,
                     left: Val::Px(10.0),

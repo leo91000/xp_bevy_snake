@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{color::palettes::tailwind, prelude::*};
 
 use crate::app_state::AppState;
 
@@ -15,7 +15,7 @@ impl Plugin for UIPlugin {
     }
 }
 
-const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
+const NORMAL_BUTTON: Color = Color::srgb(0.15, 0.15, 0.15);
 
 #[derive(Component)]
 struct MainMenuUi;
@@ -60,7 +60,7 @@ fn create_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                         TextStyle {
                             font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                             font_size: 40.0,
-                            color: Color::rgb(0.9, 0.9, 0.9),
+                            color: Color::srgb(0.9, 0.9, 0.9),
                         },
                     ));
                 });
@@ -86,7 +86,7 @@ fn button_interaction_system(
     for (interaction, _, mut border_color, _) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                border_color.0 = Color::RED;
+                border_color.0 = Color::from(tailwind::RED_500);
                 next_state.set(AppState::InGame);
             }
             Interaction::Hovered => {

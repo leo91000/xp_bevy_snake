@@ -1,3 +1,4 @@
+use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
 use bevy::render::mesh::Indices;
 use bevy::render::render_asset::RenderAssetUsages;
@@ -78,7 +79,7 @@ impl Snake {
             Direction::default(),
             MaterialMesh2dBundle {
                 mesh: meshes.add(mesh).into(),
-                material: materials.add(Color::GREEN),
+                material: materials.add(Color::from(tailwind::GREEN_500)),
                 ..Default::default()
             },
         )

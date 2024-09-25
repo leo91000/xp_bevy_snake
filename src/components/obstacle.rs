@@ -1,3 +1,4 @@
+use bevy::color::palettes::tailwind;
 use bevy::prelude::*;
 use bevy::render::mesh::Indices;
 use bevy::render::render_asset::RenderAssetUsages;
@@ -49,7 +50,7 @@ impl Obstacle {
         meshes: &mut ResMut<Assets<Mesh>>,
     ) -> (Self, PointList, MaterialMesh2dBundle<ColorMaterial>) {
         let mesh = meshes.add(Self::create_mesh(&points)).into();
-        let material = materials.add(Color::RED);
+        let material = materials.add(Color::from(tailwind::RED_500));
 
         (
             Self,
